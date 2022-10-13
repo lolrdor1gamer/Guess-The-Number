@@ -10,24 +10,111 @@ bool isEndOfGame = false;
 bool quitGame = false;
 
 char username[30];
+struct Attempt Attempts;
 
-int StartGame(bool* isEndOfGame)
+struct Guessing m_g;
+
+struct Attempt* NewAttempt()
+{
+	struct Attempt m_att;
+	m_att.m_minVal = minVal;
+	m_att.m_maxVal = maxVal;
+	m_att.m_NumberOfGuesses = numberOfGuesses;
+
+	m_g.number = 0;
+	m_att.guessing = &m_g;
+
+	struct Attempt* att = malloc(sizeof(struct Attempt));
+
+	att = &Attempts;
+
+	do
+	{
+		if (att->next = att)
+			break;
+		att = att->next;
+
+	} while (true);
+
+	if(att->number == 0)
+	{
+		m_att.number = 1;
+		m_att.next = &Attempts;
+		m_att.prev = &Attempts;
+
+		Attempts = m_att;
+
+		return &Attempts;
+	}
+	m_att.number = att->number+1;
+	m_att.prev = att;
+	m_att.next = &m_att;
+	struct Attempt* atts = &m_att;
+	att->next = atts;
+	return atts;
+}
+
+void CreateFirstAttempt()
+{
+	Attempts.number = 0;
+	Attempts.m_minVal = minVal;
+	Attempts.m_maxVal = maxVal;
+	Attempts.m_NumberOfGuesses = numberOfGuesses;
+	struct Guessing m_g;
+	m_g.number = 0;
+	Attempts.guessing = &m_g;
+	Attempts.prev = &Attempts;
+	Attempts.next = &Attempts;
+}
+
+
+void NewGuessing(struct Attempt* attempts, int res, int attempt)
+{
+	struct Guessing* m_guess = malloc(sizeof(struct Guessing));
+	m_guess->val = res;
+	m_guess->attempt = attempt;
+
+	struct Guessing* guess = attempts->guessing;
+
+	if (guess->number == 0)
+	{
+		m_guess->number = 1;
+		m_guess->next = NULL;
+		attempts->guessing = m_guess;
+		return;
+	}
+
+	do
+	{
+		if (guess->next == NULL)
+			break;
+		guess = guess->next;
+	} while (true);
+
+	m_guess->number = guess->number + 1;
+	m_guess->next = NULL;
+	guess->next = m_guess;
+}
+
+int StartGame()
 {
 	isEndOfGame = false;
 	return GenerateNumber();
 }
 
-void SimulateGame(bool* isEndOfGame, int numberToGuess, int m_numberOfGuesses)
+void SimulateGame( int numberToGuess, int m_numberOfGuesses)
 {
+	struct Attempt* att = malloc(sizeof(struct Attempt));
+	att = NewAttempt();
 	printf("Start of the game\nThere is a secret number between %i and %i\nPlease enter your number\n", minVal, maxVal);
 	int u;
 	int o;
-	while (!*isEndOfGame)
+	while (!isEndOfGame)
 	{
 		scanf(" %i", &u);
 		fflush(stdin);
-		*isEndOfGame = CheckNumbers(CompareNumbers(numberToGuess, u));
-		if(!*isEndOfGame)
+		isEndOfGame = CheckNumbers(CompareNumbers(numberToGuess, u, att));
+		if(!isEndOfGame)
 		{
 			m_numberOfGuesses--;
 		}
@@ -74,7 +161,7 @@ bool CheckNumbers(enum NumberPrefs compare)
 
 enum GameState NewState()
 {
-	printf("%s, what You want to do?\nP - play      E - exit		S - settings\n", username);
+	printf("%s, what You want to do?\nG - play      E - exit		P - preferences			S - stats\n", username);
 	char answer;
 	scanf(" %c", &answer);
 	fflush(stdin);
@@ -82,14 +169,17 @@ enum GameState NewState()
 	answer = toupper(answer);
 	switch (answer)
 	{
-	case 'P':
+	case 'G':
 		return GGame;
 		break;
-	case 'S':
+	case 'P':
 		return GSettings;
 		break;
 	case 'E':
 		return GExit;
+		break;
+	case 'S':
+		return GStats;
 		break;
 	default:
 		break;
@@ -104,11 +194,13 @@ void ParseMenu(enum GameState state)
 		Settings();
 		break;
 	case GGame:
-		SimulateGame(&isEndOfGame, StartGame(&isEndOfGame),numberOfGuesses);
+		SimulateGame(StartGame(),numberOfGuesses);
 		break;
 	case GExit:
 		quitGame = true;
 		break;
+	case GStats:
+		ShowAttempts();
 	default:
 		break;
 	}
@@ -120,6 +212,7 @@ void StartProgram()
 	scanf(" %s", &username);
 	fflush(stdin);
 	printf("Great %s, let's get started.\n", username);
+	CreateFirstAttempt();
 	do
 	{
 		ParseMenu(NewState());
@@ -212,8 +305,70 @@ void ChangeSettingsValue(enum SettingsTab* tab, int val)
 	}
 
 }
-enum NumberPrefs CompareNumbers(int correctNumber, int guessedNumber)
+
+void PrintGuesses(struct Attempt* att)
 {
+	struct Guessing* m_guess = att->guessing;
+	printf("Number\tCorrect\tUser input\n");
+	while(m_guess != NULL)
+	{
+		printf("%i\t%i\t%i\n", m_guess->number, m_guess->attempt, m_guess->attempt);
+		if (m_guess->next == NULL)
+			break;
+		m_guess = m_guess->next;
+	}
+	printf("Enter anything to return\n");
+	char o;
+	scanf(" %c", &o);
+	fflush(stdin);
+}
+
+bool PrintAttempts(struct Attempt* att)
+{
+	printf("Number: %i\nMinimal value: %i\nMaximum value: %i\nGuesses limit: %i\n", att->number, att->m_minVal, att->m_maxVal, att->m_NumberOfGuesses);
+	printf("S - show history, \'<\' \'>\' for another attempt\nExit from menu - E\n");
+	char inp;
+	scanf(" %c", &inp);
+	fflush(stdin);
+	if (toupper(inp) == 'S')
+		PrintGuesses(att);
+	else if (toupper(inp) == 'E')
+		return false;
+	else
+		ChangeAttempt(att, inp);
+	return true;
+}
+
+void ChangeAttempt(struct Attempt* att, char dir)
+{
+	switch (dir)
+	{
+	case '<':
+		*att = *att->prev;
+		break;
+	case'>' :
+		*att = *att->next;
+		break;
+	default:
+		break;
+	}
+}
+
+void ShowAttempts()
+{
+	bool isInMenu = true;
+	struct Attempt* att = &Attempts;
+	do
+	{
+		printf("Attempts menu:\n");
+		isInMenu = PrintAttempts(att);
+
+	} while (isInMenu);
+}
+
+enum NumberPrefs CompareNumbers(int correctNumber, int guessedNumber, struct Attempt* att)
+{
+	NewGuessing(att, correctNumber, guessedNumber);
 	if(guessedNumber> correctNumber)
 	{
 		return Higher;
