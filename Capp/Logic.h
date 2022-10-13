@@ -53,6 +53,7 @@ enum GameState NewState();
 
 void ParseMenu(enum GameState state);
 
+void StartProgram();
 
 void Settings();
 bool OpenSettingsTab(enum SettingsTab* tab);

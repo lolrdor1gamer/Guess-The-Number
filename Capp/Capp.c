@@ -7,12 +7,7 @@ int main()
 {
     srand(time(NULL));
 
-    do
-    {
-        ParseMenu(NewState());
-        system("cls");
-    } while (!quitGame);
-
+    StartProgram();
 
     return 0;
 }

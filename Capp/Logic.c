@@ -9,6 +9,8 @@ int maxVal = 10;
 bool isEndOfGame = false;
 bool quitGame = false;
 
+char username[30];
+
 int StartGame(bool* isEndOfGame)
 {
 	isEndOfGame = false;
@@ -17,7 +19,7 @@ int StartGame(bool* isEndOfGame)
 
 void SimulateGame(bool* isEndOfGame, int numberToGuess, int m_numberOfGuesses)
 {
-	printf("Start of the game\nPlease enter your number\n");
+	printf("Start of the game\nThere is a secret number between %i and %i\nPlease enter your number\n", minVal, maxVal);
 	int u;
 	int o;
 	while (!*isEndOfGame)
@@ -31,7 +33,7 @@ void SimulateGame(bool* isEndOfGame, int numberToGuess, int m_numberOfGuesses)
 		}
 		else
 		{
-			printf("End of the game\nYou won\n");
+			printf("End of the game\nYou won, %s\n", username);
 			printf("Enter anything to continue\n");
 			scanf(" %i", &o);
 			fflush(stdin);
@@ -39,7 +41,7 @@ void SimulateGame(bool* isEndOfGame, int numberToGuess, int m_numberOfGuesses)
 		}
 		if(m_numberOfGuesses == 0)
 		{
-			printf("End of the game\nYou lost\nThe number was %i\n", numberToGuess);
+			printf("End of the game\nYou lost, %s\nThe number was %i\n", username, numberToGuess);
 			printf("Enter anything to continue\n");
 			scanf(" %i", &o);
 			fflush(stdin);
@@ -72,7 +74,7 @@ bool CheckNumbers(enum NumberPrefs compare)
 
 enum GameState NewState()
 {
-	printf("What You want to do?\nP - play      E - exit		S - settings\n");
+	printf("%s, what You want to do?\nP - play      E - exit		S - settings\n", username);
 	char answer;
 	scanf(" %c", &answer);
 	fflush(stdin);
@@ -110,6 +112,20 @@ void ParseMenu(enum GameState state)
 	default:
 		break;
 	}
+}
+
+void StartProgram()
+{
+	printf("Welcome to the guessing game!\nThe object of the game is to guess the secret number.\nYou get %i chances for that.\nTo address you personally, I would like to know your name.\nWhat is your name?\n", numberOfGuesses);
+	scanf(" %s", &username);
+	fflush(stdin);
+	printf("Great %s, let's get started.\n", username);
+	do
+	{
+		ParseMenu(NewState());
+		system("cls");
+	} while (!quitGame);
+
 }
 
 void Settings()
