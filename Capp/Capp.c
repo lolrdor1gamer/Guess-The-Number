@@ -5,16 +5,13 @@
 
 int main()
 {
-    bool quitGame = false;
-    bool isEndOfGame = false;
     srand(time(NULL));
 
     do
     {
-        Settings();
-        //SimulateGame(&isEndOfGame, StartGame(&isEndOfGame));
-    } while (!NewGame());
-
+        ParseMenu(NewState());
+        system("cls");
+    } while (!quitGame);
 
 
     return 0;

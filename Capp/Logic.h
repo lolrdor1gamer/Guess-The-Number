@@ -7,31 +7,41 @@
 
 #pragma region settings
 
-int numberOfGuesses = 5;
+extern int numberOfGuesses;
 
-int minVal = 0;
-int maxVal = 10;
+extern int minVal;
+extern int maxVal;
 
+
+extern bool isEndOfGame;
+extern bool quitGame;
 #pragma endregion settings
 
 
+enum GameState
+{
+	GSettings =0,
+	GGame,
+	GExit
+};
+
 enum NumberPrefs
 {
-	Lower =0,
+	Lower= 0,
 	Equal,
 	Higher
 };
 
 enum SettingsTab
 {
-	SNumberOfGuesses =0,
-	SMinValue,
-	SMaxValue
+	SNumberOfGuesses= 0,
+	SMinValue= 1,
+	SMaxValue= 2
 };
 
 int StartGame(bool* isEndOfGame);
 
-void SimulateGame(bool* isEndOfGame, int numberToGuess);
+void SimulateGame(bool* isEndOfGame, int numberToGuess, int m_numberOfGuesses);
 
 int GenerateNumber();
 
@@ -39,7 +49,12 @@ bool CheckNumbers(enum NumberPrefs compare);
 
 enum NumberPrefs CompareNumbers(int correctNumber, int guessedNumber);
 
-bool NewGame();
+enum GameState NewState();
+
+void ParseMenu(enum GameState state);
+
 
 void Settings();
-bool OpenSettingsTab(enum SettingsTab tab);
+bool OpenSettingsTab(enum SettingsTab* tab);
+void ChangeTab(enum SettingsTab* tab, char direction);
+void ChangeSettingsValue(enum SettingsTab* tab, int val);
