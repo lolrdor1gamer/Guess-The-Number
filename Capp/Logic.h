@@ -102,3 +102,5 @@ void PrintGuesses(struct Attempt* att);
 bool PrintAttempts(struct Attempt* att);
 void ChangeAttempt(struct Attempt* att, char dir);
 void ShowAttempts();
+
+void WriteFile();

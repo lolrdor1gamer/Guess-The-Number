@@ -1,5 +1,7 @@
 #include "Logic.h"
 
+#include <string.h>
+
 
 int numberOfGuesses = 5;
 
@@ -10,6 +12,9 @@ bool isEndOfGame = false;
 bool quitGame = false;
 
 char username[30];
+
+FILE* fptr;
+
 struct Attempt Attempts;
 
 struct Guessing m_g;
@@ -209,7 +214,7 @@ void ParseMenu(enum GameState state)
 void StartProgram()
 {
 	printf("Welcome to the guessing game!\nThe object of the game is to guess the secret number.\nYou get %i chances for that.\nTo address you personally, I would like to know your name.\nWhat is your name?\n", numberOfGuesses);
-	scanf(" %s", &username);
+	fgets(username, strlen(username), stdin);
 	fflush(stdin);
 	printf("Great %s, let's get started.\n", username);
 	CreateFirstAttempt();
@@ -308,15 +313,19 @@ void ChangeSettingsValue(enum SettingsTab* tab, int val)
 
 void PrintGuesses(struct Attempt* att)
 {
+	fptr = fopen("C:\\Users\\Les\\source\\repos\\Capp\\Capp\\Players.txt", "a");
+
 	struct Guessing* m_guess = att->guessing;
 	printf("Number\tCorrect\tUser input\n");
 	while(m_guess != NULL)
 	{
-		printf("%i\t%i\t%i\n", m_guess->number, m_guess->attempt, m_guess->attempt);
+		printf("%i\t%i\t%i\n", m_guess->number, m_guess->val, m_guess->attempt);
+		fprintf(fptr, "%s\t%i\t%i\t%i\n", username, m_guess->number, m_guess->val, m_guess->attempt);
 		if (m_guess->next == NULL)
 			break;
 		m_guess = m_guess->next;
 	}
+	fclose(fptr);
 	printf("Enter anything to return\n");
 	char o;
 	scanf(" %c", &o);
@@ -364,6 +373,13 @@ void ShowAttempts()
 		isInMenu = PrintAttempts(att);
 
 	} while (isInMenu);
+}
+
+void WriteFile()
+{
+	fptr = fopen("C:\\Users\\Les\\source\\repos\\Capp\\Capp\\Players.txt", "a");
+	fprintf(fptr, "Name\tNumber\tCorrect\tUser input\n");
+	fclose(fptr);
 }
 
 enum NumberPrefs CompareNumbers(int correctNumber, int guessedNumber, struct Attempt* att)
