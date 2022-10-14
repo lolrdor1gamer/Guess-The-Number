@@ -13,6 +13,9 @@ bool quitGame = false;
 
 char username[30];
 
+
+#define FILEPATH "C:\\Users\\Les\\source\\repos\\Capp\\Capp\\Players.txt"
+
 FILE* fptr;
 
 struct Attempt Attempts;
@@ -214,7 +217,7 @@ void ParseMenu(enum GameState state)
 void StartProgram()
 {
 	printf("Welcome to the guessing game!\nThe object of the game is to guess the secret number.\nYou get %i chances for that.\nTo address you personally, I would like to know your name.\nWhat is your name?\n", numberOfGuesses);
-	fgets(username, strlen(username), stdin);
+	scanf("%[^\n]%*c", &username);
 	fflush(stdin);
 	printf("Great %s, let's get started.\n", username);
 	CreateFirstAttempt();
@@ -313,7 +316,7 @@ void ChangeSettingsValue(enum SettingsTab* tab, int val)
 
 void PrintGuesses(struct Attempt* att)
 {
-	fptr = fopen("C:\\Users\\Les\\source\\repos\\Capp\\Capp\\Players.txt", "a");
+	fptr = fopen(FILEPATH, "a");
 
 	struct Guessing* m_guess = att->guessing;
 	printf("Number\tCorrect\tUser input\n");
@@ -377,7 +380,7 @@ void ShowAttempts()
 
 void WriteFile()
 {
-	fptr = fopen("C:\\Users\\Les\\source\\repos\\Capp\\Capp\\Players.txt", "a");
+	fptr = fopen(FILEPATH, "a");
 	fprintf(fptr, "Name\tNumber\tCorrect\tUser input\n");
 	fclose(fptr);
 }
